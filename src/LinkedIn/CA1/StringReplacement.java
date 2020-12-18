@@ -19,7 +19,7 @@ public class StringReplacement {
         sb.append(original, fromIndex, original.length());
         return sb.toString();
     }
-    // in place replacement
+    // Method2: in place replacement
     public String replace (String org, String pattern, String rep) {
         if (pattern.length() >= rep.length()) {
             return replaceShorter(org, pattern, rep);

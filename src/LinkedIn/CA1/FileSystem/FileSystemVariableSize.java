@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class FileSystemVariableSize extends pBuffer {
-    private final int FIRST_BLOCK = BLOCK_COUNT / (BLOCK_SIZE * 8) + 1;
+    private final int FIRST_BLOCK = 1;
     private final byte[] empty = new byte[BLOCK_SIZE];
-    private LinkedList<Integer> free = new LinkedList<>(); // for recording free block space available
+    private final LinkedList<Integer> free = new LinkedList<>(); // for recording free block space available
 
     FileSystemVariableSize() {
         for (int i = FIRST_BLOCK; i <= BLOCK_COUNT; i++) {
@@ -61,8 +61,9 @@ public class FileSystemVariableSize extends pBuffer {
     @Override
     public void put(Location l, byte[] data) {
         int blockIndex = l.getLocation();
-        if (!(blockIndex < FIRST_BLOCK || blockIndex >= BLOCK_COUNT || isSet(blockIndex))) {
+        if (!(blockIndex < FIRST_BLOCK || blockIndex >= BLOCK_COUNT || !isSet(blockIndex))) {
             int bufferIndex = blockIndex * BLOCK_SIZE;
+            set(blockIndex);
             System.arraycopy(data, 0, buffer, bufferIndex, BLOCK_SIZE);
         }
     }

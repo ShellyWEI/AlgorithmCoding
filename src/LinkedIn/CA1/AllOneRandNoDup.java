@@ -1,8 +1,10 @@
 package LinkedIn.CA1;
 
 import java.util.*;
-
-public class AllOneRand<T> {
+/**
+ *
+ * */
+public class AllOneRandNoDup<T> {
     Map<T, Integer> reverseIndexMap = new HashMap<>();
     // TODO: What if resize time-complexity?
     List<T> index = new ArrayList<>();
@@ -13,12 +15,15 @@ public class AllOneRand<T> {
     }
 
     public void remove(T val) {
-        Integer prevIndex = reverseIndexMap.get(val);
+        Integer removedValueIndex = reverseIndexMap.get(val);
         reverseIndexMap.remove(val);
+        // use last position in list to make up the removed position
         int lastIndex = index.size() - 1;
         T lastVal = index.get(lastIndex);
-        index.add(prevIndex, lastVal);
-        T value = index.remove(lastIndex);
+        index.add(removedValueIndex, lastVal);
+        index.remove(lastIndex);
+        // remember to update last value's position in map
+        reverseIndexMap.put(lastVal, removedValueIndex);
     }
     public T removeRandomElement(){
         int randIndex = (int)(Math.random() * reverseIndexMap.size());
@@ -26,5 +31,4 @@ public class AllOneRand<T> {
         remove(randEle);
         return randEle;
     }
-    PriorityQueue<T> heap = new PriorityQueue<>();
 }

@@ -18,13 +18,14 @@ public class HashTableImp<K, V> {
     private final double loadFactor = 0.75;
     List<LinkedList<Node>> buckets; // keys with according buckets
     List<ReentrantLock> locks = new ArrayList<>(bucketNum); // lock on one key with all the buckets
+
     HashTableImp() {
-        buckets = new ArrayList<>();
+        buckets = new ArrayList<>(bucketNum);
         for (int i = 0; i < bucketNum; i++) {
             locks.add(new ReentrantLock());
         }
     }
-    // Question: why need Math.abs to get index --> Answer: hashCode() % bucketNum is remainer, can be negative index
+
     LinkedList<Node> lockEachBucket(K key) {
         if (key == null) {
             return null;
@@ -45,6 +46,7 @@ public class HashTableImp<K, V> {
     }
 
     private int getIndex(K key) {
+        // hashcode 可能是负数，&后保证正数
         return (key.hashCode() & 0x7FFFFFFF) % bucketNum;
     }
 
@@ -56,6 +58,7 @@ public class HashTableImp<K, V> {
                     return node.value;
                 }
             }
+            nodesOfBucket.removeIf(node -> node.key == key);
             return null;
         } finally {
             unLockEachBucket(key);
@@ -65,15 +68,30 @@ public class HashTableImp<K, V> {
     public void put(K key, V value) {
         try {
             LinkedList<Node> nodesOfBucket = lockEachBucket(key);
+            // update existing key
             for (Node node : nodesOfBucket) {
                 if (equals(node.key, key)) {
                     node.value = value;
                     return;
                 }
             }
+            // if not have existing one, add new
             nodesOfBucket.add(new Node(key, value));
         } finally {
             unLockEachBucket(key);
+        }
+    }
+
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    public void remove(K key) {
+        int index = getIndex(key);
+        ReentrantLock lock = locks.get(index);
+        lock.lock();
+        try {
+            LinkedList<Node> nodes = buckets.get(index);
+            nodes.removeIf(node -> node.key == key);
+        } finally {
+            lock.unlock();
         }
     }
 

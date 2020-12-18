@@ -20,7 +20,7 @@ public class DeepNestIterator<T> implements Iterator<T> {
 
     public T next() {
         if (hasNext()) {
-            hasNext = false; // so that each next() triggers hasNext every time
+            hasNext = false; // current next would return, so that we don't use hasNext() to find the next T yet.
             return nextT;
         } else {
             throw new NoSuchElementException("No next Element");
@@ -31,24 +31,22 @@ public class DeepNestIterator<T> implements Iterator<T> {
     public boolean hasNext() {
         while (!hasNext) {
             if (deque.isEmpty()) {
-                hasNext = false;
-                break;
+                return false;
             }
             Iterator<Data<T>> nextItr = deque.peek();
             if (!nextItr.hasNext()) {
-                deque.poll();
+                deque.poll(); // return to previous level
             } else {
                 Data<T> next = nextItr.next();
                 if (next.isCollection()) {
                     deque.offer(next.getCollection().iterator());
-                }
-                else {
+                } else {
                     nextT = next.getElement();
                     hasNext = true;
                 }
             }
         }
-        return hasNext;
+        return true;
     }
     // same element can't be remove() multiple times;
     public void remove() {
@@ -59,10 +57,10 @@ public class DeepNestIterator<T> implements Iterator<T> {
     }
 
 }
-// TODO: recursive way
+
 class RecursiveDeepNestedIterator<T> implements Iterator<T> {
     private Iterator<Data<T>> itr;
-    private Iterator<T> hepler;
+    private RecursiveDeepNestedIterator helper;
     private T nextT;
     private boolean hasNext;
 
@@ -77,7 +75,7 @@ class RecursiveDeepNestedIterator<T> implements Iterator<T> {
     public T next() {
         if (hasNext()) {
             hasNext = false;
-            hepler = null;
+            helper = null;
             return nextT;
         } else {
             throw new NoSuchElementException();
@@ -87,7 +85,7 @@ class RecursiveDeepNestedIterator<T> implements Iterator<T> {
     public boolean hasNext() {
         while (!hasNext) {
             // start to iterate over a sub-collection<T>
-            if (hepler != null && hepler.hasNext()) {
+            if (helper != null && helper.hasNext()) {
                 hasNext = true;
             } else if (itr == null || !itr.hasNext()) {
                 // collection is null or reach the end of collection
@@ -97,7 +95,7 @@ class RecursiveDeepNestedIterator<T> implements Iterator<T> {
                 // or reset by next() to find next T since last T has been returned
                 Data<T> next = itr.next();
                 if (next.isCollection()) {
-                    hepler = new RecursiveDeepNestedIterator(next.getCollection());
+                    helper = new RecursiveDeepNestedIterator(next.getCollection());
                 } else {
                     nextT = next.getElement();
                     hasNext = true;
@@ -116,6 +114,4 @@ interface Data<T> {
     // Returns the single element contained by this Data, or null if it is a collection
     T getElement();
 }
-
-// TODO: CHECK RECURSIVE METHOD ON LEETCODE
 

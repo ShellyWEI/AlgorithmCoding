@@ -25,7 +25,6 @@ public class PrintFactors {
                     sb.deleteCharAt(sb.length() - 1);
                     digit /= 10;
                 }
-
             }
         }
     }

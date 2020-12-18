@@ -7,63 +7,46 @@ package LinkedIn.CA1;
 * n = 5, and edges = [[0,1], [0,2], [0,3], [1,4]
 * */
 
-import java.util.Arrays;
-
 public class ValidTree {
-    public boolean validGraghTree(int n, int[][] edges) {
-        // make set
-        int[] parents = new int[n];
-        int[] size = new int[n];
-        Arrays.fill(size, 1);
+    // no loop and no separate union
+    public boolean validTree(int n, int[][] edges) {
+        int[] roots = new int[n];
         for (int i = 0; i < n; i++) {
-            parents[i] = i;
+            roots[i] = i;
         }
-
         for (int[] edge : edges) {
-            // before union two nodes and their parents are same
-            // means it has circle
-            if (!union(edge[0], edge[1], parents, size)) {
+            if (!needUnion(edge[0], edge[1], roots)) {
                 return false;
             }
         }
-        // check if no connected part
-        // remember those last linked nodes if not someone else's parents,
-        // update parents will only occurred in find, so should check all the nodes' parents again
-        int root = -1;
-        for (int i = 0; i < n; i++) {
-            int rootOfi = find(i, parents);
-            if (root == -1) {
-                root = rootOfi;
-            } else if (root != rootOfi) {
+        // check if there is different components
+        roots[0] = find(0, roots);
+        for (int i = 1; i < n; i++) {
+            if (find(i, roots) != roots[i - 1]) {
                 return false;
             }
         }
         return true;
     }
-    // return true if union operation is successful achieved;
-    // false if no union need
-    private boolean union(int x, int y, int[] parents, int[] size) {
-        int parentX = find(x, parents);
-        int parentY = find(y, parents);
+    private boolean needUnion(int a, int b, int[] roots) {
+        int parentA = find(a, roots);
+        int parentB = find(b, roots);
 
-        // if two nodes are on the same set
-        if (parentX == parentY) {
+        if (parentA == parentB) {
             return false;
-        }
-
-        if (size[parentX] < size[parentY]) {
-            size[parentY] += size[parentX];
-            parents[parentX] = parentY;
         } else {
-            size[parentX] += size[parentY];
-            parents[parentY] = parentX;
+            if (parentA < parentB) {
+                roots[parentB] = parentA;
+            } else {
+                roots[parentA] = parentB;
+            }
+            return true;
         }
-        return true;
     }
-    private int find(int x, int[] parents) {
-        if (parents[x] != x) {
-            parents[x] = find(parents[x], parents);
+    private int find(int num, int[] roots) {
+        if (roots[num] != num) {
+            roots[num] = find(roots[num], roots);
         }
-        return parents[x];
+        return roots[num];
     }
 }

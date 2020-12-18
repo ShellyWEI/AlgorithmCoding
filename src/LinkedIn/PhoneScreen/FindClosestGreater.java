@@ -1,7 +1,12 @@
 package LinkedIn.PhoneScreen;
 
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 // find smallest Greater character than target, if not return first
 public class FindClosestGreater {
+
     public char findClosest(String sortedString, char target) {
         char[] array = sortedString.toCharArray();
         int left = 0;

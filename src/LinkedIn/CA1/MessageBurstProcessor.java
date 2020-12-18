@@ -22,29 +22,29 @@ public class MessageBurstProcessor {
         Thread.sleep(quietPeriod);
         return currentPending == message;
     }
-    private Lock lock = new ReentrantLock();
-    private Condition curBit = lock.newCondition();
+    private final Lock lock = new ReentrantLock();
+    private final Condition curBid = lock.newCondition();
     public boolean processLock(Object message) throws Exception {
         try {
             lock.lock();
-            curBit.signalAll();
-            return curBit.await(quietPeriod, TimeUnit.MILLISECONDS);
+            curBid.signalAll();
+            return !curBid.await(quietPeriod, TimeUnit.MILLISECONDS);
         } finally {
             lock.unlock();
         }
     }
     // identify if current message is Nth last bit
-    List<Condition> activeNBit;
+    List<Condition> activeNBid;
     public MessageBurstProcessor(long quietPeriod, int N) {
         this.quietPeriod = quietPeriod;
         for (int i = 0; i < N; i++) {
-            activeNBit.add(lock.newCondition());
+            activeNBid.add(lock.newCondition());
         }
     }
     public boolean processN(Object message) throws Exception {
         try {
             lock.lock();
-            for (Condition c : activeNBit) {
+            for (Condition c : activeNBid) {
                 c.signal();
                 if (!c.await(quietPeriod, TimeUnit.MILLISECONDS)) {
                     return true;

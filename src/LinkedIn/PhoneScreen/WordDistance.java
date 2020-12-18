@@ -1,18 +1,24 @@
 package LinkedIn.PhoneScreen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Clarify questions:
+ * - word1 not equals word2
+ * - word is case-insensitive
+ * */
 public class WordDistance {
     // map-based solutions: use map to store other words index
     Map<String, List<Integer>> map;
     public WordDistance(String[] words) {
         map = new HashMap<>();
         for (int i = 0; i < words.length; i++) {
-            if (!map.containsKey(words[i])) {
-                map.put(words[i], new ArrayList<>());
+            String word = words[i].toLowerCase();
+            if (!map.containsKey(word)) {
+                map.put(word, new ArrayList<>());
             }
             map.get(words[i]).add(i);
         }
@@ -50,8 +56,35 @@ public class WordDistance {
             if (word.equalsIgnoreCase(word1) || word.equalsIgnoreCase(word2)) {
                 if (curWord == null) {
                     curWord = word;
+                    startIndex = i;
+                } else if (word.equalsIgnoreCase(curWord)) {
+                    startIndex = i;
+                } else {
+                    min = Math.min(min, i - startIndex);
+                    startIndex = i;
+                    curWord = word;
                 }
-                if (curWord == word) {
+            }
+        }
+        return min;
+    }
+
+    // what if word1 and word2 is same
+    public int shortestWordDistance2(String[] words, String word1, String word2) {
+        int startIndex = -1;
+        String curWord = null;
+        boolean isSame = word2.equals(word1);
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.equals(word1) || word.equals(word2)) {
+                if (curWord == null) {
+                    curWord = word;
+                    startIndex = i;
+                } else if (curWord.equals(word)) {
+                    if (isSame) {
+                        min = Math.min(min, i - startIndex);
+                    }
                     startIndex = i;
                 } else {
                     min = Math.min(min, i - startIndex);

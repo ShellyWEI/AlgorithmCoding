@@ -54,15 +54,13 @@ public class LRUCache {
         } else {
             // key doesn't exist and have to new Data
             Data newdata = new Data(key, value);
+            addTail(newdata);
+            map.put(key, newdata);
             // have to evict
-            if (map.size() >= limit) {
+            if (map.size() > limit) {
                 map.remove(head.key);
                 removeHead();
-                addTail(newdata);
-            } else {
-                addTail(newdata);
             }
-            map.put(key, newdata);
         }
     }
 

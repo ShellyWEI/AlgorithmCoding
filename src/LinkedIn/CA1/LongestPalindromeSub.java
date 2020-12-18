@@ -1,6 +1,7 @@
 package LinkedIn.CA1;
 
 public class LongestPalindromeSub {
+    // longest palindrome subsequence
     public static int DPFind(String s) {
         char[] array = s.toCharArray();
         int[][] dp = new int[s.length()][s.length()];
@@ -16,7 +17,7 @@ public class LongestPalindromeSub {
         }
         return dp[0][s.length() - 1];
     }
-
+    // longest palindrome subarray
     public static String longestPalindrome(String s) {
         boolean[][] dp = new boolean[s.length()][s.length()];
         int maxStart = 0;

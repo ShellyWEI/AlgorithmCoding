@@ -4,6 +4,26 @@ import java.util.*;
 
 // reverse depth
 public class NestedListSum {
+    // [1, [4, [6]]]:
+    // 每层遍历的时候把前一次的结果加一遍：第一遍 1； 第二遍 1 + （1 + 4） = 6； 第三遍 6 + （6 + 6） = 18
+    public int depthSumInverse(List<NestedInteger> nestedList) {
+        List<NestedInteger> next = nestedList;
+        int unweightedSum = 0;
+        int depthSum = 0;
+        while(next != null && next.size() != 0) {
+            List<NestedInteger> newNext = new ArrayList<>();
+            for (NestedInteger n : next) {
+                if (n.isInteger()) {
+                    unweightedSum += n.getInteger();
+                } else {
+                    newNext.addAll(n.getList());
+                }
+            }
+            depthSum += unweightedSum;
+            next = newNext;
+        }
+        return depthSum;
+    }
     // two pass:
     // get height first and do normal DFS with height-1
     public int twoPass(List<NestedInteger> list) {

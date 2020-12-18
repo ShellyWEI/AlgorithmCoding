@@ -14,136 +14,58 @@ import java.util.List;
  * 3. last word's last line =>
  *      calculate space interval differently*/
 public class TextJustify {
-    public List<String> fullJustify(String input, int maxWidth) {
-        String[] words = input.split("\\s"); // separate by white space
-        StringBuilder lineString = new StringBuilder(maxWidth);
-        List<String> lineWords = new ArrayList<>();
-        List<String> res = new ArrayList<>();
-        int curLength = 0;
-        for (int i = 0; i < words.length; i++) {
-            // new word can't be fitted into current line
-            // can never be last line
-            if (curLength + words[i].length() > maxWidth) {
-                // construct new line
-                int spaceTotal = maxWidth - curLength + lineWords.size();
-                int spaceEach = 1;
-                int spaceExtra = 0;
-                if (lineWords.size() > 1) {
-                    spaceEach = spaceTotal / (lineWords.size() - 1);
-                    spaceExtra = spaceTotal % (lineWords.size() - 1);
-                } else {
-                    spaceEach = spaceTotal;
-                }
-                for (int j = 0; j < lineWords.size(); j++) {
-                    lineString.append(lineWords.get(j));
-                    // append last word don't need spaces
-                    if (j == lineWords.size() - 1 && j != 0) {
-                        break;
-                    }
-                    // otherwise, append space
-                    if (j < spaceExtra) {
-                        // append extra space to each slot
-                        for (int k = 0; k <= spaceEach; k++) {
-                            lineString.append(" ");
-                        }
-                    } else {
-                        for (int k = 0; k < spaceEach; k++) {
-                            lineString.append(" ");
-                        }
-                    }
-                }
-                res.add(lineString.toString());
-                // prepare for next line
-                curLength = 0;
-                lineWords = new ArrayList<>();;
-                lineString = new StringBuilder(maxWidth);
-            }
 
-            lineWords.add(words[i]);
-            curLength += words[i].length() + 1;
-
-            // last line
-            if (i == words.length - 1 && lineWords.size() != 0) {
-                int spaceLeft = maxWidth - curLength;
-                for (int j = 0; j < lineWords.size(); j++) {
-                    lineString.append(lineWords.get(j)).append(" ");
-                    if (j == lineWords.size() - 1) {
-                        for (int k = 0; k < spaceLeft; k++) {
-                            lineString.append(" ");
-                        }
-                        if (spaceLeft < 0) {
-                            lineString.setLength(maxWidth);
-                        }
-                    }
-                }
-                res.add(lineString.toString());
-            }
-        }
-        return res;
-    }
-    // TODO: more clean method
-    public List<String> justify(int maxWidth, String input) {
-        List<String> words = Arrays.asList(input.split("\\s"));
+    public List<String> fullJustify(String[] words, int maxWidth) {
         List<String> line = new ArrayList<>();
-        Iterator<String> wordItr = words.iterator();
         List<String> res = new ArrayList<>();
-        int curLength = 0;
-        while (!wordItr.hasNext()) {
-            String next = wordItr.next();
-            if (curLength + next.length() > maxWidth) {
-                res.add(process(line, curLength - line.size(), maxWidth));
+        int prevLength = 0;
+        for (String word : words) {
+            int curLength = word.length();
+            if (prevLength + curLength > maxWidth) {
+                res.add(evenLine(line, prevLength - line.size(), maxWidth));
                 line = new ArrayList<>();
-                curLength = 0;
+                prevLength = 0;
             }
-            line.add(next);
-            curLength += next.length() + 1;
+            prevLength += curLength + 1;
+            line.add(word);
         }
         if (!line.isEmpty()) {
-            res.add(processLast(line, curLength - 1, maxWidth));
+            res.add(leftCompactLine(line, prevLength - 1, maxWidth));
         }
         return res;
     }
-    private String processLast(List<String> words, int wordPartLength, int maxLength) {
+    private String evenLine(List<String> words, int wordLength, int maxWidth) {
         StringBuilder sb = new StringBuilder();
-        int remainSpaces = maxLength - wordPartLength;
+        if (words.size() == 1) {
+            sb.append(words.get(0)).append(appendSpaces(maxWidth - wordLength));
+            return sb.toString();
+        }
+        int basicSpacePerSlot = (maxWidth - wordLength) / (words.size() - 1);
+        int NumsOfSlotNeedsExtraSpace = (maxWidth - wordLength) % (words.size() - 1);
         for (int i = 0; i < words.size(); i++) {
             sb.append(words.get(i));
-            if (i < words.size() - 1) {
+            if (i < NumsOfSlotNeedsExtraSpace) {
+                sb.append(appendSpaces(basicSpacePerSlot + 1));
+            } else if (i != words.size() - 1) {
+                sb.append(appendSpaces(basicSpacePerSlot));
+            }
+        }
+        return sb.toString();
+    }
+    private String leftCompactLine(List<String> words, int wordLength, int maxWidth) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < words.size(); i++) {
+            sb.append(words.get(i));
+            if (i != words.size() - 1) {
                 sb.append(" ");
             }
         }
-        if (remainSpaces > 0) {
-            sb.append(appendSpace(remainSpaces));
-        }
+        sb.append(appendSpaces(maxWidth - wordLength));
         return sb.toString();
     }
-    private String process(List<String> words, int wordLength, int maxLength) {
+    private String appendSpaces(int num) {
         StringBuilder sb = new StringBuilder();
-        int totalSpaces = maxLength - wordLength;
-        int wordSize = words.size();
-        if (wordSize > 1) {
-            int spacePerSlot = totalSpaces / (wordSize - 1);
-            int extraSpaces = totalSpaces % (wordSize - 1);
-            for (int i = 0; i < wordSize; i++) {
-                sb.append(words.get(i));
-                if (i == wordSize - 1) {
-                    break;
-                }
-                // append spaces;
-                if (extraSpaces > 0) {
-                    sb.append(" ");
-                    extraSpaces--;
-                }
-                sb.append(appendSpace(spacePerSlot));
-            }
-        } else {
-            sb.append(words.get(0)).append(appendSpace(totalSpaces));
-        }
-        return sb.toString();
-    }
-    private String appendSpace(int space) {
-        StringBuilder sb = new StringBuilder();
-        for (int j = 0; j < space; j++) {
+        for (int i = 0; i < num; i++) {
             sb.append(" ");
         }
         return sb.toString();

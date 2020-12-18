@@ -5,6 +5,7 @@ import java.util.List;
 
 // must be O(n) solution
 public class Influencer {
+    // precondition:
     public int findInfluencer(boolean[][] followingMatrix) {
         int candidate = 0;
         for (int i = 1; i < followingMatrix.length; i++) {
@@ -14,9 +15,7 @@ public class Influencer {
                 candidate = i;
             }
         }
-        String s = new String("a");
-        s.substring(0, 1);
-        List<String> res = new ArrayList<>();
+
         // but we still need to verify candidate, because we only check followers bigger than itself
         for (int j = 0; j < followingMatrix.length; j++) {
             if (candidate != j && (followingMatrix[candidate][j] || !followingMatrix[j][candidate])) {

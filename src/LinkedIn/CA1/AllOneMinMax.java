@@ -7,38 +7,51 @@ public class AllOneMinMax {
     // map add, remove()
     // List add, remove(index)
     // maybe use a reverseMap to store CountWithString
-    class Node {
-        int freq;
+    ListNode head;
+    ListNode tail;
+    Map<String, Integer> key2Value;
+    Map<Integer, ListNode> value2Node;
+
+    class ListNode {
+        ListNode next;
+        ListNode prev;
         Set<String> keys;
-        Node prev;
-        Node next;
-        Node(int freq) {
-            this.freq = freq;
-            keys = new HashSet<>();
+        int value;
+        ListNode(int value) {
+            this.keys = new HashSet<>();
+            this.value = value;
         }
     }
-    Map<String, Integer> keyWithCount;
-    Map<Integer, Node> freqWithNode;
-    Node head; // use for min
-    Node tail; // use for max
 
-    /** Initialize your data structure here. */
-    public AllOneMinMax() {
-        keyWithCount = new HashMap<>();
-        this.head = null;
-        this.tail = null;
+    private void removeFromQueue(ListNode node) {
+        if (node.prev == null && node.next == null) {
+            head = null;
+            tail = null;
+        } else if (node.prev == null) {
+            head = node.next;
+            head.prev = null;
+        } else if (node.next == null) {
+            tail = node.prev;
+            tail.next = null;
+        } else {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
     }
 
-    private void addNodeInChain(Node cur, Node prev, Node next) {
+    // cur: node to be added
+    // prev: value smaller than cur
+    // next: value larget than cur
+    private void addToQueue(ListNode prev, ListNode cur, ListNode next) {
         cur.prev = prev;
         cur.next = next;
-        // not add in head
+        // handle head
         if (prev != null) {
             prev.next = cur;
         } else {
             head = cur;
         }
-        // not add in tail
+        // handle tail
         if (next != null) {
             next.prev = cur;
         } else {
@@ -46,103 +59,83 @@ public class AllOneMinMax {
         }
     }
 
-    private void removeNodeInChain(Node cur) {
-        Node prev = cur.prev;
-        Node next = cur.next;
-        // not remove in head
-        if (prev != null) {
-            prev.next = next;
-        } else {
-            next.prev = null;
-            head = next;
-        }
-        // not remove in tail
-        if (next != null) {
-            next.prev = prev;
-        } else {
-            prev.next = null;
-            tail = prev;
-        }
-    }
-    /** Inserts a new key <Key> with value 1. Or increments an existing key by 1. */
-    public void inc(String key) {
-        Integer freq = keyWithCount.get(key);
-        if (freq == null) {
-            addKey(key);
-        } else {
-            updateAddKey(key, freq + 1);
-        }
-    }
-
-    // add key to new node or existing node
-    private void addKey(String key) {
-        keyWithCount.put(key, 1);
-        Node node = freqWithNode.get(1);
-        // add key to new node;
+    // add new key in the queue;
+    private void add(String key) {
+        key2Value.put(key, 1);
+        ListNode node = value2Node.get(1);
         if (node == null) {
-            node = new Node(1);
-            addNodeInChain(node, null, head);
-            freqWithNode.put(1, node);
+            node = new ListNode(1);
+            addToQueue(null, node, head);
+            value2Node.put(1, node);
         }
         node.keys.add(key);
     }
-    // update from small freq node to larger freq node
-    private void updateAddKey(String key, int freq) {
-        keyWithCount.put(key, freq);
-        Node old = freqWithNode.get(freq - 1);
-        old.keys.remove(key);
-        Node cur = freqWithNode.get(freq);
-        // node is not existing add new node;
-        if (cur == null) {
-            cur = new Node(freq);
-            addNodeInChain(cur, old, old.next);
-            freqWithNode.put(freq, cur);
+
+    // remove key in the queue
+    private void remove(String key) {
+        key2Value.remove(key);
+        ListNode node = value2Node.get(1);
+        if (node.keys.size() == 1) {
+            removeFromQueue(node);
+            value2Node.remove(1);
+        } else {
+            node.keys.remove(key);
         }
-        cur.keys.add(key);
-        // remove node in the middle
-        if (old.keys.isEmpty()) {
-            removeNodeInChain(old);
-            freqWithNode.remove(freq - 1);
+    }
+
+    // update existing key and move position in the queue
+    private void updateKey(String key, int oldValue, int newValue) {
+        key2Value.put(key, newValue);
+
+        ListNode oldNode = value2Node.get(oldValue);
+        oldNode.keys.remove(key);
+
+        ListNode newNode = value2Node.get(newValue);
+        if (newNode == null) {
+            newNode = new ListNode(newValue);
+            value2Node.put(newValue, newNode);
+            if (oldValue < newValue) {
+                addToQueue(oldNode, newNode, oldNode.next);
+            } else {
+                addToQueue(oldNode.prev, newNode, oldNode);
+            }
+
+        }
+        newNode.keys.add(key);
+
+        if (oldNode.keys.isEmpty()) {
+            removeFromQueue(oldNode);
+            value2Node.remove(oldValue);
+        }
+    }
+
+    /** Initialize your data structure here. */
+    public AllOneMinMax() {
+        head = null;
+        tail = null;
+        key2Value = new HashMap<>();
+        value2Node = new HashMap<>();
+    }
+
+    /** Inserts a new key <Key> with value 1. Or increments an existing key by 1. */
+    public void inc(String key) {
+        Integer value = key2Value.get(key);
+        if (value == null) {
+            add(key);
+        } else {
+            updateKey(key, value, value + 1);
         }
     }
 
     /** Decrements an existing key by 1. If Key's value is 1, remove it from the data structure. */
     public void dec(String key) {
-        Integer freq = keyWithCount.get(key);
-        if (freq == null) {
-
-        } else if (freq == 1) {
-            removeKey(key);
+        Integer value = key2Value.get(key);
+        if (value == null) {
+            return;
+        } else if (value == 1) {
+            remove(key);
         } else {
-            updateDeductKey(key, freq - 1);
-        }
-
-    }
-
-    private void removeKey(String key) {
-        keyWithCount.remove(key);
-        Node cur = freqWithNode.get(1);
-        cur.keys.remove(key);
-        if (cur.keys.isEmpty()) {
-            removeNodeInChain(cur);
-            freqWithNode.remove(1);
-        }
-    }
-
-    private void updateDeductKey(String key, int freq) {
-        keyWithCount.put(key, freq);
-        Node old = freqWithNode.get(freq + 1);
-        old.keys.remove(key);
-        Node cur = freqWithNode.get(freq);
-        if (cur == null) {
-            cur = new Node(freq);
-            addNodeInChain(cur, old.prev, old);
-            freqWithNode.put(freq, cur);
-        }
-        cur.keys.add(key);
-        if (old.keys.isEmpty()) {
-            removeNodeInChain(old);
-            freqWithNode.remove(freq + 1);
+            updateKey(key, value, value - 1);
         }
     }
 

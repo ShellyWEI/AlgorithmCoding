@@ -1,5 +1,8 @@
 package LinkedIn.PhoneScreen;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MaxContiguousSubarray {
     // max sum
     public int maxSumSubArray(int[] nums) {
@@ -29,6 +32,15 @@ public class MaxContiguousSubarray {
         for (int num : nums) {
             int curMax;
             int curMin;
+            /*
+            * if num < 0:
+            *  if curMax < 0 && curMin < 0, -> curMax = max(num, curMax * num); curMin = min(num, curMin * num)
+            *  if curMax > 0 && curMin < 0, -> curMax = Max(num, curMin * num); curMin = min(num, curMax * num)
+            *  if curMax > 0 && curMin > 0, ->
+            * if num > 0:
+            *  if curMax < 0 && curMin < 0, -> curMax = num
+            *  if curMax > 0; -> curMax = curMax * num
+            * */
             // find current contiguous max and min if sign changes
             curMax = Math.max(max * num, min * num);
             curMin = Math.min(max * num, min * num);
@@ -39,5 +51,28 @@ public class MaxContiguousSubarray {
             result = Math.max(max, result);
         }
         return result;
+    }
+
+    // continuous subarray sum equals target * n (integer)
+    public boolean checkSubarraySum(int[] num, int k) {
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(0, -1);
+        int prefixSum = 0;
+        for (int i = 0 ; i < num.length; i++) {
+            prefixSum += num[i];
+            int cur = prefixSum;
+            if (k != 0) {
+                cur = prefixSum % k;
+            }
+            Integer prevIndex = map.get(cur);
+            if (prevIndex != null) {
+                if (i - prevIndex > 1) {
+                    return true;
+                }
+            } else {
+                map.put(cur, i);
+            }
         }
+        return false;
+    }
 }

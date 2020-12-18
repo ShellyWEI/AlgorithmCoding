@@ -47,6 +47,5 @@ public class IntegerParseInt {
     }
     public static void main(String[] args) {
         parseInt("2147483648");
-        Math.sqrt(8);
     }
 }

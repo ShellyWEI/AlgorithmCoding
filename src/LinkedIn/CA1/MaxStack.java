@@ -3,61 +3,25 @@ package LinkedIn.CA1;
 import java.util.*;
 
 public class MaxStack {
-    DoublyListNode dummy = new DoublyListNode(0);
     DoublyListNode head;
     DoublyListNode tail;
-    Integer max;
-    //PriorityQueue<ListNode> maxHeap;
-    TreeMap<Integer, List<DoublyListNode>> treeMap;
+    //PriorityQueue<DoublyListNode> maxHeap;
+    TreeMap<Integer, List<DoublyListNode>> map;
     public MaxStack() {
-        head = dummy;
-        tail = head;
-        max = Integer.MIN_VALUE;
-        treeMap = new TreeMap<>();
+        this.head = null;
+        this.tail = null;
+        map = new TreeMap<>();
         // Can't use PriorityQueue since order can't be promised when same
         //maxHeap = new PriorityQueue<>((o1, o2) -> o2.value - o1.value);
     }
     // O(log n) to push, push on tail
     public void push(int x) {
-        DoublyListNode newNode = new DoublyListNode(x);
-        List<DoublyListNode> curList = treeMap.get(x);
-        if (curList == null) {
-            curList = new ArrayList<>();
-        }
-        curList.add(newNode);
-        treeMap.put(x, curList);
-        if (max == null || x > max) {
-            max = x;
-        }
-        if (head == dummy) {
-            head = newNode;
-            tail = newNode;
-            return;
-        }
-        tail.next = newNode;
-        newNode.prev = tail;
-        newNode.next = null;
-        tail = newNode;
+        addToStack(x);
     }
     // O(log n) to pop, pop on tail
     public Integer pop() {
-        if (tail == null) {
-            return null;
-        }
-        Integer popValue = tail.value;
-        if (popValue.equals(max)) {
-            return popMax();
-        }
-        DoublyListNode prev = tail.prev;
-        prev.next = null;
-        tail.prev = null;
-        tail = prev;
-        List<DoublyListNode> curList = treeMap.get(popValue);
-        if (curList.size() == 1) {
-            treeMap.remove(popValue);
-        } else {
-            curList.remove(curList.size() - 1);
-        }
+        int popValue = tail.value;
+        removeFromStack(popValue);
         return popValue;
     }
 
@@ -69,45 +33,61 @@ public class MaxStack {
     }
 
     public Integer peekMax() {
-        if (treeMap.isEmpty()) {
+        if (map.isEmpty()) {
             return null;
         }
-        return max;
+        return map.lastKey();
     }
 
     public Integer popMax() {
-        Integer curMax = peekMax();
-        if (curMax != null) {
-            List<DoublyListNode> curList = treeMap.get(curMax);
-            DoublyListNode node = curList.get(curList.size() - 1);
-            if (curList.size() == 1) {
-                 treeMap.remove(curMax);
-                 max = treeMap.isEmpty() ? null : treeMap.lastKey();
-            } else {
-                curList.remove(curList.size() - 1);
-            }
-            DoublyListNode prev = node.prev;
-            DoublyListNode next = node.next;
-            // remove only one element
-            if (prev == null && next == null) {
-                head = dummy;
-                tail = head;
-            } else if (prev == null) {
-                next.prev = null;
-                node.next = null;
-                head = next;
-            } else if (next == null) {
-                prev.next = null;
-                node.prev = null;
-                tail = prev;
-            } else {
-                prev.next = next;
-                next.prev = prev;
-                node.prev = null;
-                node.next = null;
-            }
+        int peekMax = map.lastKey();
+        removeFromStack(peekMax);
+        return peekMax;
+    }
+
+    private void addToStack(int value) {
+        if (head == null) {
+            head = new DoublyListNode(value);
+            tail = head;
+        } else {
+            DoublyListNode newNode = new DoublyListNode(value);
+            tail.next = newNode;
+            newNode.prev = tail;
+            tail = newNode;
         }
-        return curMax;
+        List<DoublyListNode> sameValueNodes = map.computeIfAbsent(value, k -> new LinkedList<>());
+        sameValueNodes.add(tail);
+    }
+
+    private void removeFromStack(int key) {
+        DoublyListNode node = removeFromMap(key);
+        // only one node;
+        if (node.next == null && node.prev == null) {
+            head = null;
+            tail = null;
+        } else if (node.prev == null) {
+            // remove head
+            head.next.prev = null;
+            head = head.next;
+        } else if (node.next == null) {
+            // remove tail
+            node.prev.next = null;
+            tail = node.prev;
+        } else {
+            //remove in the middle
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+    }
+
+    private DoublyListNode removeFromMap(int key) {
+        List<DoublyListNode> sameValueNodes = map.get(key);
+        DoublyListNode nodeToBeRemoved = sameValueNodes.get(sameValueNodes.size() - 1);
+        sameValueNodes.remove(sameValueNodes.size() - 1);
+        if (sameValueNodes.isEmpty()) {
+            map.remove(key);
+        }
+        return nodeToBeRemoved;
     }
 
     public static void main(String[] args) {

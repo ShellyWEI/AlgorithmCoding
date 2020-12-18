@@ -41,12 +41,6 @@ public class RomanNumber {
         return map;
     }
 
-//    private Map<Integer, String> generateValueToSymbol() {
-//        Map<Integer, String> map = new HashMap<>();
-//        map.put(1, "I");
-//        map.put()
-//    }
-
     public int romanToInt(String roman) {
         Scanner s = new Scanner(roman);
         String prev = null;
@@ -67,7 +61,7 @@ public class RomanNumber {
                 prevVal = symbolToValue.get(cur);
             }
         }
-        return 0;
+        return res;
     }
 
     public String intToRoman(int num) {

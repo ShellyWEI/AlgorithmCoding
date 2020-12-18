@@ -1,5 +1,6 @@
 package LinkedIn.PhoneScreen;
 
+import java.math.BigDecimal;
 import java.util.*;
 /*Follow up:
 * - Add support for ! operator, use fact() to calculate.
@@ -9,37 +10,31 @@ public class ReversePolishNotation {
     public int reversePolishNotation(String[] input) throws Exception{
         Deque<Integer> deque = new LinkedList<>();
         for (String c : input) {
-            if (Character.isDigit(c.charAt(0))) {
-                deque.offerFirst(Character.getNumericValue(c.charAt(0)));
-            } else {
-                int res;
+            try {
+                deque.offerFirst(Integer.parseInt(c));
+            } catch (NumberFormatException e){
                 Integer sec;
                 Integer fir;
-                try {
-                    switch (c) {
-                        case "+":
-                            res = deque.pollFirst() + deque.pollFirst();
-                            break;
-                        case "-":
-                            sec = deque.pollFirst();
-                            fir = deque.pollFirst();
-                            res = fir - sec;
-                            break;
-                        case "*":
-                            res = deque.pollFirst() * deque.pollFirst();
-                            break;
-                        case "/":
-                            sec = deque.pollFirst();
-                            fir = deque.pollFirst();
-                            res = fir / sec;
-                            break;
-                        default:
-                            throw new NoSuchElementException();
-                    }
-                } catch (NullPointerException e) {
-                    throw new NullPointerException("deque is null");
+                switch (c) {
+                    case "+":
+                        deque.offerFirst(deque.pollFirst() + deque.pollFirst());
+                        break;
+                    case "-": sec = deque.pollFirst();
+                        fir = deque.pollFirst();
+                        deque.offerFirst(fir - sec);
+                        break;
+                    case "*":
+                        deque.offerFirst(deque.pollFirst() * deque.pollFirst());
+                        break;
+                    case "/":
+                        sec = deque.pollFirst();
+                        fir = deque.pollFirst();
+                        deque.offerFirst( fir / sec);
+                        break;
+                    case "!":
+                        int val = deque.pollFirst();
+                        deque.offerFirst(fact(val).intValue());
                 }
-                deque.offerFirst(res);
             }
         }
         if (deque.size() == 1) {
@@ -47,6 +42,14 @@ public class ReversePolishNotation {
         }
         else {
             throw new Exception("Invalid input");
+        }
+    }
+
+    private BigDecimal fact(int n) {
+        if (n == 0 || n == 1) {
+            return BigDecimal.valueOf(1);
+        } else {
+            return BigDecimal.valueOf(n).multiply(fact(n - 1));
         }
     }
 }

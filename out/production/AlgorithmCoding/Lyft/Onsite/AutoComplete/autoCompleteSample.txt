@@ -1,0 +1,20 @@
+abort 5
+address 3
+app 2
+apple 3
+assume 1
+banana 9
+besides 5
+beyond 6
+brain 4
+cheap 1
+hello 3
+language 5
+java 2
+wish 3
+person 8
+pineapple 7
+system 4
+target 2
+transport 3
+

@@ -27,7 +27,6 @@ public class BinarySearchTree {
                 return root;
             }
             return kSmallest(root.right, k - 1);
-
         }
     }
 

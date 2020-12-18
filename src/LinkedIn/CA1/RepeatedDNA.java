@@ -8,7 +8,7 @@ import java.util.*;
 // A => 00 C => 01 G => 10 T=> 11
 // if 10-length DNA repeated => 2 * 10 as index size
 // 2^20 B == 1M size array to store result
-// 16-length: 2^32 is java integer max length, as array max size
+// 16-length: 2^32 (4G) is java integer max length, as array max size
 // 10~16: use map instead
 // bigger: trie
 
@@ -21,11 +21,15 @@ public class RepeatedDNA {
 
     }
     public static List<String> findRepeatedDnaSequences(String s) {
-        Map<Character, Integer> encode = new HashMap<>();
-        encode.put('A', 0);
-        encode.put('C', 1);
-        encode.put('G', 2);
-        encode.put('T', 3);
+        Map<String, Integer> encode = new HashMap<String, Integer>(){
+            {
+                put("A", 0);
+                put("C", 1);
+                put("G", 2);
+                put("T", 3);
+            }
+        };
+
         int mask = (1 << 20) - 1;
         int sequence = 0;
         int[] freq = new int[1 << 20];
