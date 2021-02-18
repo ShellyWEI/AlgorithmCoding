@@ -221,4 +221,3 @@ public class StreamProcessing {
         return getCurrentTime() - createTimeInMicrosecs > TTLinMicrosecs;
     }
 }
-

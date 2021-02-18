@@ -172,4 +172,3 @@ public class StreamProcessingBigLock {
         return getCurrentTime() - createTimeInMicrosecs > TTLinMicrosecs;
     }
 }
-
