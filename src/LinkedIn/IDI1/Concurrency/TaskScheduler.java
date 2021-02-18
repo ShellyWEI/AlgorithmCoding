@@ -1,4 +1,4 @@
-package LinkedIn.Concurrency;
+package LinkedIn.IDI1.Concurrency;
 
 import java.util.PriorityQueue;
 import java.util.concurrent.TimeUnit;

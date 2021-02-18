@@ -3,6 +3,39 @@ package LinkedIn.CA2;
 import java.util.*;
 
 public class Palindrome {
+    public Set<String> findPalindromes(String s) {
+        Set[][] res = new Set[s.length()][s.length()];
+
+        // generate all the standlone chars, add it into the dp sets;
+        for (int i = 0; i < s.length(); i++) {
+            res[i][i] = new HashSet<>();
+            res[i][i].add(s.charAt(i));
+        }
+
+        for (int i = s.length()-2;  i >= 0; i--) {
+            for (int j = i+1; j < s.length(); j++) {
+                Set<String> currSet = (res[i][j] == null)? new HashSet<>(): res[i][j];
+                if (s.charAt(i) == s.charAt(j)) {
+                    Set<String> innerSet = (i+1 < j-1)? new HashSet<>():res[i+1][j-1];
+                    currSet.addAll(innerSet);
+                    for (String str : innerSet) {
+                        String newPalindrome = s.charAt(i) + str + s.charAt(i);
+                        currSet.add(newPalindrome);
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(s.charAt(i)).append(s.charAt(i));
+                    currSet.add(sb.toString());
+                } else {
+                    Set<String> innerSetHead = (i+1 < j)? new HashSet<>():res[i+1][j];
+                    Set<String> innerSetTail = (i < j-1)? new HashSet<>():res[i][j-1];
+                    currSet.addAll(innerSetHead);
+                    currSet.addAll(innerSetTail);
+                }
+            }
+        }
+        return res[0][s.length()-1];
+    }
+
     public int countPalindromicSubsequences(String S) {
         Set<String> set = new HashSet<>();
         TreeSet[] charIndex = new TreeSet[4];

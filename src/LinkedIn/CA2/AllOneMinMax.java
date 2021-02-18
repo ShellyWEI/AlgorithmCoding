@@ -1,4 +1,4 @@
-package LinkedIn.CA1;
+package LinkedIn.CA2;
 
 import java.util.*;
 // todo: check efficiency

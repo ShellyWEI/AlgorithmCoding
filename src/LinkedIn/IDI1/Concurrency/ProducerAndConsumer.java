@@ -1,4 +1,4 @@
-package LinkedIn.Concurrency;
+package LinkedIn.IDI1.Concurrency;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

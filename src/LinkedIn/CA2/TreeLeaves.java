@@ -13,21 +13,15 @@ public class TreeLeaves {
     }
     private Integer findLeaves(TreeNode root, List<List<TreeNode>> res) {
         if (root == null) {
-            return 0;
+            return -1;
         }
         int leftHeight = findLeaves(root.left, res);
         int rightHeight = findLeaves(root.right, res);
         int curHeight = Math.max(leftHeight, rightHeight) + 1;
-        List<TreeNode> sameHeightNodes;
-        if (curHeight > res.size()) {
-            sameHeightNodes = new ArrayList<>();
-            sameHeightNodes.add(root);
-            res.add(curHeight, sameHeightNodes);
-        } else {
-            sameHeightNodes = res.get(curHeight);
-            sameHeightNodes.add(root);
-            res.set(curHeight, sameHeightNodes);
+        if (curHeight == res.size()) {
+            res.add(new ArrayList<>());
         }
+        res.get(curHeight).add(root);
         return curHeight;
     }
 }
