@@ -1,20 +1,18 @@
 package LeetCode;
 
-import apple.laf.JRSUIUtils;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class LCA {
-    class TreeNode {
-        int val;
-        TreeNode left;
-        TreeNode right;
-        TreeNode(int x) {
-            val = x;
-        }
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) {
+        val = x;
     }
+}
+public class LCA {
     /**
      * LCA of BST
      * */
